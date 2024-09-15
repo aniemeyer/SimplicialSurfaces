@@ -39,6 +39,7 @@ BindGlobal( "SIMPLICIAL_TestAll", function()
     __SIMPLICIAL_Test_Smaller();
 
     __SIMPLICIAL_Test_UmbrellaDescriptor();
+    __SIMPLICIAL_Test_SurfaceGeneration();
 
     # VEF-complex
     __SIMPLICIAL_Test_VEF_SpecialisedIncidence();

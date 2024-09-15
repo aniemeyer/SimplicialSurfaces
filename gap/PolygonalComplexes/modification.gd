@@ -1574,7 +1574,7 @@ DeclareOperation("SplitAllVertices", [IsPolygonalComplex]);
 
 
 
-#! @BeginGroup ButterflyInsertionSurface
+#! @BeginGroup ButterflyInsertion
 #! @Description
 #! Given a simplicial surface <A>surface</A>, a new surface is constructed
 #! by inserting a
@@ -1582,7 +1582,7 @@ DeclareOperation("SplitAllVertices", [IsPolygonalComplex]);
 #! as a list of three vertices such that these three vertices determine two
 #! edges of <A>surface</A>, meeting in the middle vertex, or as a list
 #! of two adjacent edges, or as a vertex-edge path. The operation
-#! <E>ButterflyInsertionSurface</E> can be viewed as splitting
+#! <E>ButterflyInsertion</E> can be viewed as splitting
 #! the middle vertex of the given vertex-edge path in <A>surface</A> into
 #! two new vertices. The inner edge of the butterfly will be inserted such
 #! that it is adjacent to the new vertices created by splitting the middle vertex.
