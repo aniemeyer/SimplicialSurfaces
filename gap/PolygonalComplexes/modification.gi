@@ -1885,7 +1885,7 @@ InstallMethod( ButterflyInsertion,
      function( surface, t )
 
     local bound, path1, path2, newSurface, butterfly,
-          edges, newverts, w, i, e, v, ime;
+          edges, newverts, w, i, e, v, ime, res;
 
     if Length(t) = 2 then
         if  not IsSubset(Edges(surface),t) or 
@@ -1925,7 +1925,10 @@ InstallMethod( ButterflyInsertion,
             bound[1][1],ReversedPath(bound[2][1]));
         path2:=VertexEdgePathByEdges(butterfly,[1,2,3,4]);
 
-        return JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
+        res := JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
+	if res = fail then return fail; fi;
+	if not IsSimplicialSurface(res[1]) then Error("not a surface"); fi;
+	return res;
 	        
     elif IsInnerEdge(surface,edges[1]) and IsInnerEdge(surface,edges[2]) then
 
@@ -1962,15 +1965,21 @@ InstallMethod( ButterflyInsertion,
         path1 := VertexEdgePathByVertices(newSurface,newverts);
         path2:=VertexEdgePathByEdges(butterfly,[1,4,3,2]);
 
-        return JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
-
+        res := JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
+	if res=fail then return fail; fi;
+	if not IsSimplicialSurface(res[1]) then Error("not a surface"); fi;
+	return res;
 
     elif not IsInnerEdge(surface,edges[1]) and
         not IsInnerEdge(surface,edges[2]) then
         # the path is a boundary path
        
         path2:=VertexEdgePathByEdges(butterfly,[1,2]);
-        return JoinVertexEdgePaths(surface,path1,butterfly,path2);
+
+        res := JoinVertexEdgePaths(surface,path1,butterfly,path2);
+	if res=fail then return fail; fi;
+	if not IsSimplicialSurface(res[1]) then Error("not a surface"); fi;
+	return res;
     else
         # one edge is inner
         if  IsInnerEdge(surface,edges[1]) then
@@ -2002,7 +2011,10 @@ InstallMethod( ButterflyInsertion,
         path1 := VertexEdgePathByVertices(newSurface,newverts);
         path2:=VertexEdgePathByEdges(butterfly,[1,2,3]);
 
-        return JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
+        res := JoinVertexEdgePaths(newSurface,path1,butterfly,path2);
+	if res=fail then return fail; fi;
+	if not IsSimplicialSurface(res[1]) then Error("not a surface"); fi;
+	return res;
 
     fi;
 end

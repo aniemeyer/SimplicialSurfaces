@@ -61,7 +61,6 @@ BindGlobal( "__SIMPLICIAL_AllEssentialTwoPaths",
 
         local vertices, i, t, umbti, u, relpaths, mp, twosets, isgood,
               aut, orbs, isNewInOrb, li;
-
         umbti := UmbrellaTipDescriptorOfSurface(surf);
         relpaths := [];
 
@@ -154,3 +153,47 @@ InstallMethod( AllSimplicialSurfacesByEssentialButterflyInsertion,
         return IsomorphismRepresentatives(surfaces);
 
 end);
+
+
+
+# All Simplicial discs on <nrFaces> faces and with boundary length <bdLen>.
+AllSimplicialDiscs := function( nrFaces, bdLen)
+
+        local reps, bgon, n, newsurfs, surfaces, surf, allp, canrep;
+
+        reps := [];
+
+        canrep := function(sisu)
+            local rep;
+            rep := CanonicalRepresentativeOfPolygonalSurface(sisu);
+            if rep=fail then return fail; fi;
+            return rep[1];
+        end;
+
+
+        bgon := canrep(SimplicialUmbrella(bdLen));
+        # The simplicial umbrella has as many faces as its
+        # boundary length
+        n := bdLen;
+     
+        if nrFaces < n or nrFaces mod 2 <> n mod 2 then
+            return [];
+        fi;
+
+        reps := [bgon];
+        while n < nrFaces do
+            newsurfs := Set([]);
+            for surf in reps do
+                allp := __SIMPLICIAL_AllEssentialTwoPaths(surf);
+                surfaces := List(allp, t-> canrep(
+                                 ButterflyInsertion(surf, t)[1]));
+                newsurfs := Union(newsurfs,surfaces);
+            od;
+            n := n+2;
+            reps := newsurfs;
+        od;
+
+        return reps;
+
+end;
+
