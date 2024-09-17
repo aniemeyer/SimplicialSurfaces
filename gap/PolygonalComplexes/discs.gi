@@ -197,3 +197,65 @@ AllSimplicialDiscs := function( nrFaces, bdLen)
 
 end;
 
+
+#############################################################################
+##
+## BoundaryDyclets . . . . . All boundary dyclets of a simplicial disc
+##
+BoundaryVertexDyclets := function( disc )
+        
+        local dyc, i, pos, boundV, boundE, voe, v, enew, e, done, alldyclets;
+
+        alldyclets := [];
+        boundV := BoundaryVertices(disc);
+        boundE := BoundaryEdges(disc);
+        done:= List(boundE,e->false);
+
+#        e := boundE[1];
+#        v := VerticesOfEdge(disc,e)[1];
+
+       while Position(done,false) <> fail do
+            # there is still another boundary cycle
+             dyc := [];
+             # an unused boundary edge
+             pos := Position(done,false);
+             e := boundE[Position(done,false)];
+             done[pos] := true;
+             v := VerticesOfEdge(disc,e)[1];
+             for i in [ 1..Length(boundV) ] do
+                dyc[i] := v; 
+
+               # find the next edge on the boundary that is incident to v
+               enew := Intersection(boundE,EdgesOfVertex(disc,v));
+               # enew now contains two edges
+               if enew[1] = e then
+                   e := enew[2];
+               else
+                   e := enew[1];
+               fi;
+               done[Position(boundE,e)] := false;
+
+               # find the vertex different to v
+               v := OtherVertexOfEdge(disc,v,e);
+            od;
+            Add(alldyclets,dyc);
+            
+        od;
+
+        return dyc;
+
+end;
+
+
+#############################################################################
+##
+#F BoundaryDegreeDyclet . . . . Boundary degree dyclet of a simplicial disc
+##
+BoundaryDegreeDyclet := function( disc )
+
+        return List( BoundaryVertexDyclet(disc), v -> DegreeOfVertex(disc,v) );
+
+end;
+
+
+
