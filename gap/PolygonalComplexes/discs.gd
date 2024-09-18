@@ -91,3 +91,46 @@ DeclareOperation( "AllSimplicialSurfacesByEssentialButterflyInsertion", [IsSimpl
 
 
 
+#! @BeginGroup AllSimplicialEssentialDiscs
+#! @Description
+#! This function computes representatives of the isomorphism classes of
+#! all essential simplicial discs with <A>nrFaces</A> faces and a
+#! boundary cycle consisting of <A>bdLen</A> endges.
+#!
+#! @BeginExampleSession
+#! gap> alldiscs := AllSimplicialEssentialDiscs(8,4);
+#! [ simplicial surface (7 vertices, 14 edges, and 8 faces), 
+#!   simplicial surface (7 vertices, 14 edges, and 8 faces) ]
+#! List(alldiscs,CounterOfVertices);
+#! [ counter of vertices ([ 2, 4 ] degrees, and [ 2, 5 ] multiplicities), 
+#!   counter of vertices ([ 2, 3, 4, 5 ] degrees, and [ 1, 3, 2, 1 ] multiplicities) ]
+#! @EndExampleSession
+#! @Arguments integer integer
+#! @Returns a list of simplicial surfaces
+DeclareOperation( "AllSimplicialEssentialDiscs", [IsPosInt,IsPosInt] );
+#! @EndGroup
+
+
+#! @BeginGroup IsomorphismRepresentativesOfZippedDiscs
+#! @Description
+#! This function computes representatives of the isomorphism classes of
+#! all simplicial spheres obtained by joining the two discs
+#! <A>disc1</A> and <A>disc2</A> along their boundary.
+#!
+#! @BeginExampleSession
+#! gap> alldiscs := AllSimplicialEssentialDiscs(8,4);
+#! [ simplicial surface (7 vertices, 14 edges, and 8 faces), 
+#!   simplicial surface (7 vertices, 14 edges, and 8 faces) ]
+#! List(alldiscs,CounterOfVertices);
+#! [ counter of vertices ([ 2, 4 ] degrees, and [ 2, 5 ] multiplicities), 
+#!   counter of vertices ([ 2, 3, 4, 5 ] degrees, and [ 1, 3, 2, 1 ] multiplicities) ]
+#! @EndExampleSession
+#! @Arguments surface surface
+#! @Returns a list of simplicial surfaces
+DeclareOperation( "IsomorphismRepresentativesOfZippedDiscs", [IsSimplicialSurface,IsSimplicialSurface] );
+#! @EndGroup
+
+
+
+
+

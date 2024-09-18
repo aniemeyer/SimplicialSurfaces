@@ -155,9 +155,12 @@ InstallMethod( AllSimplicialSurfacesByEssentialButterflyInsertion,
 end);
 
 
-
 # All Simplicial discs on <nrFaces> faces and with boundary length <bdLen>.
-AllSimplicialDiscs := function( nrFaces, bdLen)
+InstallMethod( AllSimplicialEssentialDiscs,
+    "for a pair of positive integers",
+    [IsPosInt,IsPosInt],
+    
+       function( nrFaces, bdLen)
 
         local reps, bgon, n, newsurfs, surfaces, surf, allp, canrep;
 
@@ -195,67 +198,131 @@ AllSimplicialDiscs := function( nrFaces, bdLen)
 
         return reps;
 
-end;
+end
+);
 
 
-#############################################################################
-##
-## BoundaryDyclets . . . . . All boundary dyclets of a simplicial disc
-##
-BoundaryVertexDyclets := function( disc )
+
+
+InstallMethod( IsomorphismRepresentativesOfZippedDiscs,
+
+    "for a pair of simplicial discs",
+    [IsSimplicialSurface,IsSimplicialSurface],
+    
+    function(disc1,disc2)
+
+    local  j, perm, spheres, path1, path2, dyclet, n, s, vert1,
+           dih, grp1, grp2, double, bound2;
+
+
+        if IsClosedSurface(disc1) or IsClosedSurface(disc2) or
+        not IsConnected(disc1) or not IsConnected(disc2) or
+        not EulerCharacteristic(disc1) = 1 or 
+        not EulerCharacteristic(disc2) = 1  then
+            ErrorNoReturn("both surfaces must be simplicial discs");
+        fi;;
+
+        path1 := PerimeterOfHoles(disc1)[1];
+        bound2 := PerimeterOfHoles(disc2)[1];
+        vert1 := VerticesAsList(path1);
+        dyclet := VerticesAsList(bound2);
+
+        if Length(vert1) <> Length(dyclet) then
+            ErrorNoReturn("Boundaries must have same length");
+        fi;
+
+
+        grp1 := AutomorphismGroupOnVertices(disc1);
+        grp2 := AutomorphismGroupOnVertices(disc2);
+        # consider the induced action on the boundary
+        grp1 := Action(grp1, vert1{[1..Length(vert1)-1]}, OnPoints);
+        grp2 := Action(grp2, dyclet{[1..Length(dyclet)-1]}, OnPoints);
+
+        dyclet := dyclet{[1..Length(dyclet)-1]};
+        dih := DihedralGroup( IsPermGroup, 2*Length(dyclet) );
+
+        # compute the double costs in the dihedral group
+        # We act with G on U from the right and with H on U from left-inverse
+        double :=Orbits(grp1,Elements(dih),OnLeftInverse);
+        s:=Orbits(grp2,double,OnRight);
+        # double consists of the double cosets grp1\dih/grp2
+        double:=Set(List(s,r->Union(r)));
+
+        spheres := [];
         
-        local dyc, i, pos, boundV, boundE, voe, v, enew, e, done, alldyclets;
-
-        alldyclets := [];
-        boundV := BoundaryVertices(disc);
-        boundE := BoundaryEdges(disc);
-        done:= List(boundE,e->false);
-
-#        e := boundE[1];
-#        v := VerticesOfEdge(disc,e)[1];
-
-       while Position(done,false) <> fail do
-            # there is still another boundary cycle
-             dyc := [];
-             # an unused boundary edge
-             pos := Position(done,false);
-             e := boundE[Position(done,false)];
-             done[pos] := true;
-             v := VerticesOfEdge(disc,e)[1];
-             for i in [ 1..Length(boundV) ] do
-                dyc[i] := v; 
-
-               # find the next edge on the boundary that is incident to v
-               enew := Intersection(boundE,EdgesOfVertex(disc,v));
-               # enew now contains two edges
-               if enew[1] = e then
-                   e := enew[2];
-               else
-                   e := enew[1];
-               fi;
-               done[Position(boundE,e)] := false;
-
-               # find the vertex different to v
-               v := OtherVertexOfEdge(disc,v,e);
-            od;
-            Add(alldyclets,dyc);
-            
+        n := Length(dyclet);
+        # Generate all cyclic permutations and their mirror images
+        for j in [1..Length(double)] do
+            perm := Permuted(dyclet, double[j][1]);
+            perm[Length(perm)+1] := perm[1];
+            path2 := VertexEdgePathByVertices(disc2,perm);
+            s := JoinVertexEdgePaths(disc1,path1,disc2,path2);
+            Add(spheres, s[1]);
         od;
 
-        return dyc;
+    return IsomorphismRepresentatives(spheres);
+end
 
-end;
+);
 
 
 #############################################################################
 ##
-#F BoundaryDegreeDyclet . . . . Boundary degree dyclet of a simplicial disc
+#F Given a subdisc <disc> of a simplicial sphere <sph> returns the comple-
+## menting subdisc
 ##
-BoundaryDegreeDyclet := function( disc )
+ComplementingDiscInSphere := function( sphere, disc)
 
-        return List( BoundaryVertexDyclet(disc), v -> DegreeOfVertex(disc,v) );
+        local fs, fd;
+
+        fs := Faces(sphere);
+        fd := Faces(disc);
+
+        if not IsSubset(fs,fd) then
+            ErrorNoReturn("disc is not a subdisc of sphere");
+        fi;
+        return SubsurfaceByFaces(sphere,Difference(fs,fd));
 
 end;
+
+
+AllDecompositionsSphereAut := function( n )
+
+        local discs, numbers, k, sn_k, y, i, j, s, aut1, aut2;
+
+        if not IsEvenInt(n) then Error("n has to be even"); fi;
+        n := n/2;
+        # n is the size of a hemisphere
+
+        discs := [];
+        numbers := [];
+#        for k in [ 4 .. n ] do
+        for k in [ 6..7 ] do
+            # find zippings of a sphere with <n> faces into
+            # two discs whose boundary length is <k>
+            sn_k := AllSimplicialEssentialDiscs(n,k);
+            y := [];
+            for i in [1..Length(sn_k)] do
+                aut1:= AutomorphismGroupOnVertices(sn_k[i]);
+                for j in [i..Length(sn_k)] do
+                    aut2:= AutomorphismGroupOnVertices(sn_k[j]);
+                    s := IsomorphismRepresentativesOfZippedDiscs(
+                        sn_k[i],sn_k[j]);
+                    Print(" k = ", k, " # ", Length(s), "\n");
+                    Append(y,s);
+                od;
+            od;
+            y := IsomorphismRepresentatives(y);
+            if y <> [] then
+                discs[k] := y;
+                numbers[k] := Length(y);
+            fi;
+        od;
+
+        return [discs, numbers];
+end;
+
+
 
 
 
