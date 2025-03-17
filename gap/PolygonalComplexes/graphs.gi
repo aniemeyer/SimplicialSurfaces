@@ -313,13 +313,20 @@ if IsPackageMarkedForLoading( "GRAPE", ">=0" ) then
 fi;
 
 if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
-    InstallMethod( IsIsomorphic, 
-        "for two twisted polygonal complexes", 
-        [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],
-        function(complex1, complex2)
-	    if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) and CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
+  InstallMethod( IsIsomorphic, 
+      "for two twisted polygonal complexes", 
+      [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],
+      function(complex1, complex2)
+        if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) then
+          if CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
                 return false;
-            fi;
+	  else
+              return IsomorphismGraphs(
+	        IncidenceNautyGraph(complex1),
+	        IncidenceNautyGraph(complex2)) <> fail;
+          fi;
+	 fi;
+	  
             return IsomorphismGraphs( 
                 ChamberAdjacencyGraph(complex1),
                 ChamberAdjacencyGraph(complex2)) <> fail;
@@ -329,7 +336,11 @@ if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
     InstallMethod( AutomorphismGroup, "for a twisted polygonal complex", 
         [IsTwistedPolygonalComplex],
         function(complex)
+	    if IsSimplicialSurface(complex) then
+	    return AutomorphismGroup( IncidenceNautyGraph(complex) );
+  	        else 
             return AutomorphismGroup( ChamberAdjacencyGraph(complex) );
+	    fi; 
         end
     );
 fi;
@@ -556,6 +567,17 @@ BindGlobal( "__SIMPLICIAL_RestrictToVertices",
 
         maxVert := Maximum(Vertices(complex));
         permList := [1..maxVert];
+
+        # in a simplicial surface the vertices are permute
+	# among themselves
+        if IsSimplicialSurface(complex) then
+            vOfC := Vertices(complex);
+            for c in Vertices(complex) do
+                permList[vOfC[c]] := vOfC[c^g];
+                return PermList(permList);
+            od;
+	fi;
+
         vOfC := VerticesOfChambers(complex);
         for c in Chambers(complex) do
             permList[vOfC[c]] := vOfC[c^g];
