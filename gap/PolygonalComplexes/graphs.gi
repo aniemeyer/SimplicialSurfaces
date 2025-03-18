@@ -574,8 +574,8 @@ BindGlobal( "__SIMPLICIAL_RestrictToVertices",
             vOfC := Vertices(complex);
             for c in Vertices(complex) do
                 permList[vOfC[c]] := vOfC[c^g];
-                return PermList(permList);
             od;
+            return PermList(permList);
 	fi;
 
         vOfC := VerticesOfChambers(complex);
