@@ -126,7 +126,6 @@ if IsPackageMarkedForLoading( "GRAPE", ">=0" ) then
                 Length(vertices) + [1 .. Length(edges)],
                 Length(vertices) + Length(edges) + [1 .. Length(faces)]
             ];
-
 	    return rec( graph := graph, colourClasses := colourClasses );   
         end
     );
@@ -165,7 +164,7 @@ fi;
 ##
 if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
     InstallMethod( IncidenceNautyGraph, "for a polygonal complex",
-        [IsPolygonalComplex],
+        [IsPolygonalComplex],0,
         function(complex)
             local maxVertex, maxEdge, maxFace, edgeList, colourList, v, e, f,
                 colSet, vertexList, verts;
@@ -293,7 +292,7 @@ InstallMethod( AutomorphismGroup, "for a twisted polygonal complex",
 if IsPackageMarkedForLoading( "GRAPE", ">=0" ) then
     InstallOtherMethod( IsIsomorphic,
         "for two polygonal complexes",
-        [IsPolygonalComplex, IsPolygonalComplex],
+        [IsPolygonalComplex, IsPolygonalComplex], #5,
         function(complex1, complex2)
             local inc1, inc2;
 		
@@ -315,7 +314,7 @@ fi;
 if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
   InstallMethod( IsIsomorphic, 
       "for two twisted polygonal complexes", 
-      [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],
+      [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],5,
       function(complex1, complex2)
         if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) then
           if CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
@@ -334,7 +333,7 @@ if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
     );
 
     InstallMethod( AutomorphismGroup, "for a twisted polygonal complex", 
-        [IsTwistedPolygonalComplex],
+        [IsTwistedPolygonalComplex],5,
         function(complex)
 	    if IsSimplicialSurface(complex) then
 	    return AutomorphismGroup( IncidenceNautyGraph(complex) );
@@ -568,15 +567,14 @@ BindGlobal( "__SIMPLICIAL_RestrictToVertices",
         maxVert := Maximum(Vertices(complex));
         permList := [1..maxVert];
 
-        # in a simplicial surface the vertices are permute
-	# among themselves
-        if IsSimplicialSurface(complex) then
-            vOfC := Vertices(complex);
-            for c in Vertices(complex) do
-                permList[vOfC[c]] := vOfC[c^g];
-            od;
-            return PermList(permList);
-	fi;
+         # in a simplicial surface the vertices are permuted
+ 	# among themselves
+         if IsSimplicialSurface(complex) then
+             for c in Vertices(complex) do
+                 permList[c] := c^g;
+             od;
+             return PermList(permList);
+ 	fi;
 
         vOfC := VerticesOfChambers(complex);
         for c in Chambers(complex) do
@@ -587,10 +585,21 @@ BindGlobal( "__SIMPLICIAL_RestrictToVertices",
 );
 BindGlobal( "__SIMPLICIAL_RestrictToEdges",
     function(complex,  g)
-        local maxEdge, permList, c, eOfC;
+        local maxEdge, maxVert, permList, c, eOfC;
 
         maxEdge := Maximum(Edges(complex));
+        maxVert := Maximum(Vertices(complex));
         permList := [1..maxEdge];
+         
+        # in a simplicial surface the vertices are permuted
+	# among themselves
+        if IsSimplicialSurface(complex) then
+            for c in Edges(complex) do
+                permList[c] := (c+maxVert)^g-maxVert;
+            od;
+            return PermList(permList);
+        fi;
+
         eOfC := EdgesOfChambers(complex);
         for c in Chambers(complex) do
             permList[eOfC[c]] := eOfC[c^g];
@@ -601,10 +610,21 @@ BindGlobal( "__SIMPLICIAL_RestrictToEdges",
 
 BindGlobal( "__SIMPLICIAL_RestrictToFaces",
     function(complex, g)
-        local maxFace, permList, c, fOfC;
+        local maxFace, maxVE, permList, c, fOfC;
 
         maxFace := Maximum(Faces(complex));
+        maxVE := Maximum(Edges(complex)) +  Maximum(Vertices(complex));
         permList := [1..maxFace];
+         
+        # in a simplicial surface the vertices are permuted
+	# among themselves
+        if IsSimplicialSurface(complex) then
+            for c in Faces(complex) do
+                permList[c] := (c+maxVE)^g-maxVE;
+            od;
+            return PermList(permList);
+        fi;
+
         fOfC := FacesOfChambers(complex);
         for c in Chambers(complex) do
             permList[fOfC[c]] := fOfC[c^g];
