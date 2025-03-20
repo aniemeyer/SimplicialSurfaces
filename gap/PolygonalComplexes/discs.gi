@@ -271,7 +271,11 @@ end
 #F Given a subdisc <disc> of a simplicial sphere <sph> returns the comple-
 ## menting subdisc
 ##
-ComplementingDiscInSphere := function( sphere, disc)
+InstallMethod( ComplementingDiscInSphere,
+    "for a sphere and a disc which is a subsurface  of the sphere",
+    [IsSimplicialSurface,IsSimplicialSurface],
+
+    function( sphere, disc)
 
         local fs, fd;
 
@@ -283,46 +287,7 @@ ComplementingDiscInSphere := function( sphere, disc)
         fi;
         return SubsurfaceByFaces(sphere,Difference(fs,fd));
 
-end;
-
-
-AllDecompositionsSphereAut := function( n )
-
-        local discs, numbers, k, sn_k, y, i, j, s, aut1, aut2;
-
-        if not IsEvenInt(n) then Error("n has to be even"); fi;
-        n := n/2;
-        # n is the size of a hemisphere
-
-        discs := [];
-        numbers := [];
-#        for k in [ 4 .. n ] do
-        for k in [ 6..7 ] do
-            # find zippings of a sphere with <n> faces into
-            # two discs whose boundary length is <k>
-            sn_k := AllSimplicialEssentialDiscs(n,k);
-            y := [];
-            for i in [1..Length(sn_k)] do
-                aut1:= AutomorphismGroupOnVertices(sn_k[i]);
-                for j in [i..Length(sn_k)] do
-                    aut2:= AutomorphismGroupOnVertices(sn_k[j]);
-                    s := IsomorphismRepresentativesOfZippedDiscs(
-                        sn_k[i],sn_k[j]);
-                    Print(" k = ", k, " # ", Length(s), "\n");
-                    Append(y,s);
-                od;
-            od;
-            y := IsomorphismRepresentatives(y);
-            if y <> [] then
-                discs[k] := y;
-                numbers[k] := Length(y);
-            fi;
-        od;
-
-        return [discs, numbers];
-end;
-
-
-
+end
+);
 
 
