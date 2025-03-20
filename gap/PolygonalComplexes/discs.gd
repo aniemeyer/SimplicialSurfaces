@@ -105,7 +105,7 @@ DeclareOperation( "AllSimplicialSurfacesByEssentialButterflyInsertion", [IsSimpl
 #! [ counter of vertices ([ 2, 4 ] degrees, and [ 2, 5 ] multiplicities), 
 #!   counter of vertices ([ 2, 3, 4, 5 ] degrees, and [ 1, 3, 2, 1 ] multiplicities) ]
 #! @EndExampleSession
-#! @Arguments integer integer
+#! @Arguments nrFaces bdLength
 #! @Returns a list of simplicial surfaces
 DeclareOperation( "AllSimplicialEssentialDiscs", [IsPosInt,IsPosInt] );
 #! @EndGroup
