@@ -91,3 +91,77 @@ DeclareOperation( "AllSimplicialSurfacesByEssentialButterflyInsertion", [IsSimpl
 
 
 
+#! @BeginGroup AllSimplicialEssentialDiscs
+#! @Description
+#! This function computes representatives of the isomorphism classes of
+#! all essential simplicial discs with <A>nrFaces</A> faces and a
+#! boundary cycle consisting of <A>bdLen</A> endges.
+#!
+#! @BeginExampleSession
+#! gap> alldiscs := AllSimplicialEssentialDiscs(8,4);
+#! [ simplicial surface (7 vertices, 14 edges, and 8 faces), 
+#!   simplicial surface (7 vertices, 14 edges, and 8 faces) ]
+#! List(alldiscs,CounterOfVertices);
+#! [ counter of vertices ([ 2, 4 ] degrees, and [ 2, 5 ] multiplicities), 
+#!   counter of vertices ([ 2, 3, 4, 5 ] degrees, and [ 1, 3, 2, 1 ] multiplicities) ]
+#! @EndExampleSession
+#! @Arguments nrFaces bdLength
+#! @Returns a list of simplicial surfaces
+DeclareOperation( "AllSimplicialEssentialDiscs", [IsPosInt,IsPosInt] );
+#! @EndGroup
+
+
+#! @BeginGroup IsomorphismRepresentativesOfZippedDiscs
+#! @Description
+#! This function computes representatives of the isomorphism classes of
+#! all simplicial spheres obtained by joining the two discs
+#! <A>disc1</A> and <A>disc2</A> along their boundary.
+#!
+#! @BeginExampleSession
+#! gap> alldiscs := AllSimplicialEssentialDiscs(8,4);
+#! [ simplicial surface (7 vertices, 14 edges, and 8 faces), 
+#!   simplicial surface (7 vertices, 14 edges, and 8 faces) ]
+#! List(alldiscs,CounterOfVertices);
+#! [ counter of vertices ([ 2, 4 ] degrees, and [ 2, 5 ] multiplicities), 
+#!   counter of vertices ([ 2, 3, 4, 5 ] degrees, and [ 1, 3, 2, 1 ] multiplicities) ]
+#! @EndExampleSession
+#! @Arguments surface surface
+#! @Returns a list of simplicial surfaces
+DeclareOperation( "IsomorphismRepresentativesOfZippedDiscs", [IsSimplicialSurface,IsSimplicialSurface] );
+#! @EndGroup
+
+
+#! @BeginGroup ComplementingDisc
+#! @Description
+#! This function takes as input a simplicial sphere <A>sphere</A> and
+#! simplicial disc <A>disc</A> which has to be a subsurface of <A>sphere</A>.
+#! It returns a simplicial disc which is the complement of <A>disc</A> in <A>sphere</A>.
+#
+#! @BeginExampleSession
+#! gap> oct := Octahedron(); 
+#! simplicial surface (6 vertices, 12 edges, and 8 faces)
+#! gap> disc := SubsurfaceByFaces(oct,[1,4]);
+#! gap> comp := ComplementingDiscInSphere(oct,disc);
+#! simplicial surface (6 vertices, 11 edges, and 6 faces)
+#! gap> Display(comp);
+#! SimplicialSurface (orientable, Euler-characteristic 1)
+#!    Vertices (6): [ 1, 2, 3, 4, 5, 6 ]
+#!    Edges (11): [ 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12 ]
+#!    Faces (6): [ 2, 3, 5, 6, 7, 8 ]
+#!    VerticesofEdges: [ [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ], , [ 2, 5 ], [ 2, 6 ], [ 3, 4 ], [ 3, 6 ], [ 4, 5 ], #! [ 4 \
+#! , 6 ], [ 5, 6 ] ]
+#!     VerticesofFaces: [ , [ 2, 5, 6 ], [ 1, 2, 5 ], , [ 1, 4, 5 ], [ 3, 4, 6 ], [ 1, 3, 4 ], [ 4, 5, 6 ] ]
+#!    EdgesofFaces: [ , [ 6, 7, 12 ], [ 1, 4, 6 ], , [ 3, 4, 10 ], [ 8, 9, 11 ], [ 2, 3, 8 ], [ 10, 11, 12 ] ]
+#!  Umbrella-paths: [ |e1,F3,e4,F5,e3,F7,e2 |, | e1, F3, e6, F2, e7 |, | e2, F7, e8, F6, e9 |, ( e3, F5, e10, F8 \
+#! , e11, F6, e8, F7, e3 ), ( e4, F3, e6, F2, e12, F8, e10, F5, e4 ), | e7, F2, e12, F8, e11, F6, e9 | ]
+#!  
+#! @EndExampleSession
+#! @Arguments surface surface
+#! @Returns a simplicial surface
+DeclareOperation( "ComplementingDiscInSphere",[IsSimplicialSurface,IsSimplicialSurface] );
+#! @EndGroup
+
+
+
+
+

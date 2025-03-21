@@ -61,7 +61,6 @@ BindGlobal( "__SIMPLICIAL_AllEssentialTwoPaths",
 
         local vertices, i, t, umbti, u, relpaths, mp, twosets, isgood,
               aut, orbs, isNewInOrb, li;
-
         umbti := UmbrellaTipDescriptorOfSurface(surf);
         relpaths := [];
 
@@ -154,3 +153,141 @@ InstallMethod( AllSimplicialSurfacesByEssentialButterflyInsertion,
         return IsomorphismRepresentatives(surfaces);
 
 end);
+
+
+# All Simplicial discs on <nrFaces> faces and with boundary length <bdLen>.
+InstallMethod( AllSimplicialEssentialDiscs,
+    "for a pair of positive integers",
+    [IsPosInt,IsPosInt],
+    
+       function( nrFaces, bdLen)
+
+        local reps, bgon, n, newsurfs, surfaces, surf, allp, canrep;
+
+        reps := [];
+
+        canrep := function(sisu)
+            local rep;
+            rep := CanonicalRepresentativeOfPolygonalSurface(sisu);
+            if rep=fail then return fail; fi;
+            return rep[1];
+        end;
+
+
+        bgon := canrep(SimplicialUmbrella(bdLen));
+        # The simplicial umbrella has as many faces as its
+        # boundary length
+        n := bdLen;
+     
+        if nrFaces < n or nrFaces mod 2 <> n mod 2 then
+            return [];
+        fi;
+
+        reps := [bgon];
+        while n < nrFaces do
+            newsurfs := Set([]);
+            for surf in reps do
+                allp := __SIMPLICIAL_AllEssentialTwoPaths(surf);
+                surfaces := List(allp, t-> canrep(
+                                 ButterflyInsertion(surf, t)[1]));
+                newsurfs := Union(newsurfs,surfaces);
+            od;
+            n := n+2;
+            reps := newsurfs;
+        od;
+
+        return reps;
+
+end
+);
+
+
+
+
+InstallMethod( IsomorphismRepresentativesOfZippedDiscs,
+
+    "for a pair of simplicial discs",
+    [IsSimplicialSurface,IsSimplicialSurface],
+    
+    function(disc1,disc2)
+
+    local  j, perm, spheres, path1, path2, dyclet, n, s, vert1,
+           dih, grp1, grp2, double, bound2;
+
+
+        if IsClosedSurface(disc1) or IsClosedSurface(disc2) or
+        not IsConnected(disc1) or not IsConnected(disc2) or
+        not EulerCharacteristic(disc1) = 1 or 
+        not EulerCharacteristic(disc2) = 1  then
+            ErrorNoReturn("both surfaces must be simplicial discs");
+        fi;;
+
+        path1 := PerimeterOfHoles(disc1)[1];
+        bound2 := PerimeterOfHoles(disc2)[1];
+        vert1 := VerticesAsList(path1);
+        dyclet := VerticesAsList(bound2);
+
+        if Length(vert1) <> Length(dyclet) then
+            ErrorNoReturn("Boundaries must have same length");
+        fi;
+
+
+        grp1 := AutomorphismGroupOnVertices(disc1);
+        grp2 := AutomorphismGroupOnVertices(disc2);
+        # consider the induced action on the boundary
+        grp1 := Action(grp1, vert1{[1..Length(vert1)-1]}, OnPoints);
+        grp2 := Action(grp2, dyclet{[1..Length(dyclet)-1]}, OnPoints);
+
+        dyclet := dyclet{[1..Length(dyclet)-1]};
+        dih := DihedralGroup( IsPermGroup, 2*Length(dyclet) );
+
+        # compute the double costs in the dihedral group
+        # We act with G on U from the right and with H on U from left-inverse
+        double :=Orbits(grp1,Elements(dih),OnLeftInverse);
+        s:=Orbits(grp2,double,OnRight);
+        # double consists of the double cosets grp1\dih/grp2
+        double:=Set(List(s,r->Union(r)));
+
+        spheres := [];
+        
+        n := Length(dyclet);
+        # Generate all cyclic permutations and their mirror images
+        for j in [1..Length(double)] do
+            perm := Permuted(dyclet, double[j][1]);
+            perm[Length(perm)+1] := perm[1];
+            path2 := VertexEdgePathByVertices(disc2,perm);
+            s := JoinVertexEdgePaths(disc1,path1,disc2,path2);
+            Add(spheres, s[1]);
+        od;
+
+    return IsomorphismRepresentatives(spheres);
+end
+
+);
+
+
+#############################################################################
+##
+#F Given a subdisc <disc> of a simplicial sphere <sph> returns the comple-
+## menting subdisc
+##
+InstallMethod( ComplementingDiscInSphere,
+    "for a sphere and a disc which is a subsurface  of the sphere",
+    [IsSimplicialSurface,IsSimplicialSurface],
+
+    function( sphere, disc)
+
+        local fs, fd;
+
+        fs := Faces(sphere);
+        fd := Faces(disc);
+
+        if not IsSubset(fs,fd) then
+            ErrorNoReturn("disc is not a subdisc of sphere");
+        fi;
+        return SubsurfaceByFaces(sphere,Difference(fs,fd));
+
+end
+);
+
+
