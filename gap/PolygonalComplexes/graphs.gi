@@ -299,7 +299,6 @@ if IsPackageMarkedForLoading( "GRAPE", ">=0" ) then
             if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) and CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
 		return false;
 	    fi;
-
             inc1 := IncidenceGrapeGraph(complex1);
             inc2 := IncidenceGrapeGraph(complex2);
             # We copy the structure fully, so that all components stay mutable
@@ -313,17 +312,23 @@ if IsPackageMarkedForLoading( "GRAPE", ">=0" ) then
 fi;
 
 if IsPackageMarkedForLoading("NautyTracesInterface", ">=0") then
-    InstallMethod( IsIsomorphic, 
-        "for two twisted polygonal complexes", 
-        [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],5,
-        function(complex1, complex2)
-        if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) and CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
-              return false;
-        fi;
-
-        return IsomorphismGraphs( 
-            ChamberAdjacencyGraph(complex1),
-            ChamberAdjacencyGraph(complex2)) <> fail;
+  InstallMethod( IsIsomorphic, 
+      "for two twisted polygonal complexes", 
+      [IsTwistedPolygonalComplex, IsTwistedPolygonalComplex],5,
+      function(complex1, complex2)
+        if IsSimplicialSurface(complex1) and IsSimplicialSurface(complex2) then
+          if CounterOfButterflies(complex1)<>CounterOfButterflies(complex2) then
+                return false;
+	  else
+              return IsomorphismGraphs(
+	        IncidenceNautyGraph(complex1),
+	        IncidenceNautyGraph(complex2)) <> fail;
+          fi;
+	 fi;
+	  
+            return IsomorphismGraphs( 
+                ChamberAdjacencyGraph(complex1),
+                ChamberAdjacencyGraph(complex2)) <> fail;
         end
     );
 
@@ -528,6 +533,7 @@ InstallMethod( CanonicalRepresentativeOfPolygonalSurface,
             inversevertexmap[i-n1-n2] := VerticesAttributeOfComplex(surf)[i^perminv - n1 - n2];
         od;
 
+#        surf2 := PolygonalSurfaceByDownwardIncidenceNC(verticesofedgesofsurf2, edgesoffacesofsurf2);
 
         # Use the correct constructor 
         if IsSimplicialSurface(surf) then
@@ -535,7 +541,6 @@ InstallMethod( CanonicalRepresentativeOfPolygonalSurface,
         else
             surf2 := PolygonalSurfaceByDownwardIncidence(verticesofedgesofsurf2, edgesoffacesofsurf2);
         fi;
-
 
         # return the canonical form of the surface and
         # the bijections mapping the new elements to old, by element i in canonical surface
@@ -791,13 +796,15 @@ BindGlobal("__SIMPLICIAL_EdgesFromCycle",
 BindGlobal("__SIMPLICIAL_IsNonSeparating",
         function(digraph,cycle)
 
-        local digraphRemoved;
+        local edgesOfCycle, e, digraphRemoved;
 
         if not IsSymmetricDigraph(digraph) then
                 return false;
         fi;
 
-        digraphRemoved:=DigraphRemoveVertices(digraph,cycle);
+        edgesOfCycle:=__SIMPLICIAL_EdgesFromCycle(digraph,cycle);
+
+        digraphRemoved:=DigraphRemoveEdges(digraph,edgesOfCycle);
         if IsConnectedDigraph(digraphRemoved) then
                 return true;
         else
